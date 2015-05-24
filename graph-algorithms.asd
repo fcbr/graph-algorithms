@@ -8,5 +8,6 @@
                #:minheap)
   :serial t
   :components ((:file "package")
+               (:file "test")
                (:file "graph-algorithms")))
 
