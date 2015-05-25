@@ -4,7 +4,7 @@
 
 (defun bfs (source neighbors-fn visitor-fn
             &key (test #'equal) (queue-depth 500000))
-  "Perform a breadth-first-search on the graph.  SOURCE is the vertex
+  "Performs a breadth-first-search on the graph.  SOURCE is the vertex
 used as the start of the search.  NEIGHBORS-FN should return a list of
 immediate neighbor vertices of a given vertex.  VISITOR-FN is called
 on each new vertex found by the search.  TEST is used to compare
@@ -25,9 +25,9 @@ CL-SPEEDY-QUEUE."
 (defun connected-components (vertices neighbors-fn visitor-fn
                              &key (test #'equal))
   "VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
-  return a list of immediate neighbor vertices of a given vertex.
-  VISITOR-FN is called once for each representative vertex of found
-  components."
+return a list of immediate neighbor vertices of a given vertex.
+VISITOR-FN is called once for each representative vertex of found
+components."
   (let ((discovered (make-hash-table :test test)))
     (dolist (id vertices)
       (unless (gethash id discovered)
@@ -37,87 +37,112 @@ CL-SPEEDY-QUEUE."
              (lambda (n)
                (setf (gethash n discovered) 1)))))))
 
-#|
-1  function Dijkstra(Graph, source):
-2      dist[source] ← 0                  // Initialization
-3      for each vertex v in Graph:           
-4          if v ≠ source
-5              dist[v] ← infinity        // Unknown distance from source to v
-6              prev[v] ← undefined       // Predecessor of v
-7          end if
-8          Q.add_with_priority(v, dist[v])
-9      end for 
-10
-11     while Q is not empty:             // The main loop
-12         u ← Q.extract_min()           // Remove and return best vertex
-13         for each neighbor v of u:
-14             alt = dist[u] + length(u, v) 
-15             if alt < dist[v]
-16                 dist[v] ← alt
-17                 prev[v] ← u
-18                 Q.decrease_priority(v, alt)
-19             end if
-20         end for
-21     end while
-21     return dist[], prev[]
-|#
+(defun degrees (vertices neighbors-fn &key (test #'equal))
+  "Given a list of VERTICES and a NEIGHBOR-FN function, returns two
+functions: one that gives the in degree of a vertex and another that
+gives the out degree of a vertex."
+  (let ((in-degree (make-hash-table :test test))
+        (out-degree (make-hash-table :test test)))
+    (flet ((+in-degree (v n)
+             (setf (gethash v in-degree)
+                   (+ n (gethash v in-degree))))
+           (+out-degree (v n)
+             (setf (gethash v out-degree)
+                   (+ n (gethash v out-degree)))))
+      (dolist (v vertices)
+        (setf (gethash v in-degree) 0)
+        (setf (gethash v out-degree) 0))
+      (dolist (v vertices)
+        (let ((neighbors (funcall neighbors-fn v)))
+          (+out-degree v (length neighbors))
+          (dolist (n neighbors)
+            (+in-degree n 1))))
+      (values (lambda (n)
+                (ensure-gethash n in-degree 0))
+              (lambda (n)
+                (ensure-gethash n out-degree 0))))))
 
-(defun dijkstra (source)
-)  
+(defun dijkstra (source vertices neighbors-fn &key (test #'equal))
+  "Dijkstra's shortest path algorithm between SOURCE and DESTINATION."
+  (let* ((dist (make-hash-table :test test))
+        (prev (make-hash-table :test test))
+        (Q (make-heap #'< :key (lambda (n) (gethash n dist)))))
+    (flet ((set-dist (v n) (setf (gethash v dist) n))
+           (get-dist (v) (gethash v dist))
+           (set-prev (v n) (setf (gethash v prev) n))
+           (get-prev (v) (gethash v prev)))
+      (set-dist source 0)
+      (set-prev source nil)
+      (dolist (v vertices)
+        (when (not (funcall test v source))
+          (set-dist v MOST-POSITIVE-FIXNUM)
+          (set-prev v nil))
+        (heap-insert v Q))
+      (loop until (heap-empty-p Q)
+         do
+           (let ((u (heap-pop Q))
+                 (alt 0))
+             (dolist (v (funcall neighbors-fn u))
+               (setf alt (+ (get-dist u) 1))
+               (when (< alt (get-dist v))
+                 (set-dist v alt)
+                 (set-prev v u))))))
+    (values dist prev)))
 
-(defun strongly-connected-components (vertices neighbors-fn visitor-fn &key (test #'equal))
+(defun strongly-connected-components (vertices neighbors-fn visitor-fn
+                                      &key (test #'equal))
   "Tarjan's strongly connected components algorithm, published by
-   Robert Tarjan in 1972,[3] performs a single pass of depth first
-   search. It maintains a stack of vertices that have been explored by
-   the search but not yet assigned to a component, and calculates low
-   numbers of each vertex (an index number of the highest ancestor
-   reachable in one step from a descendant of the vertex) which it
-   uses to determine when a set of vertices should be popped off the
-   stack into a new component.
+Robert Tarjan in 1972,[3] performs a single pass of depth first
+search. It maintains a stack of vertices that have been explored by
+the search but not yet assigned to a component, and calculates low
+numbers of each vertex (an index number of the highest ancestor
+reachable in one step from a descendant of the vertex) which it uses
+to determine when a set of vertices should be popped off the stack
+into a new component.
 
-   VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
-   return a list of immediate neighbor vertices of a given vertex.
-   VISITOR-FN is called once for each SCC found."
+VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
+return a list of immediate neighbor vertices of a given vertex.
+VISITOR-FN is called once for each SCC found."
   (let ((index 0)
         (stack nil)
         (on-stack (make-hash-table :test test))
         (indices (make-hash-table :test test))
         (low-links (make-hash-table :test test)))
-    (labels ((low-link! (v n) (setf (gethash v low-links) n))
-             (low-link? (v) (gethash v low-links))
-             (index! (v n) (setf (gethash v indices) n))
-             (index? (v) (gethash v indices))
-             (on-stack! (v n) (setf (gethash v on-stack) n))
-             (on-stack? (v) (gethash v on-stack))
+    (labels ((set-low-link (v n) (setf (gethash v low-links) n))
+             (get-low-link (v) (gethash v low-links))
+             (set-index (v n) (setf (gethash v indices) n))
+             (get-index (v) (gethash v indices))
+             (set-on-stack (v n) (setf (gethash v on-stack) n))
+             (get-on-stack (v) (gethash v on-stack))
              (strong-connect (v)
-               (index! v index)
-               (low-link! v index)
-               (setf index (1+ index))
+               (set-index v index)
+               (set-low-link v index)
+               (incf index)
                (push v stack)
-               (on-stack! v t)
+               (set-on-stack v t)
                ;; consider sucessors of v
                (dolist (w (funcall neighbors-fn v))
-                 (if (not (index? w))
+                 (if (not (get-index w))
                      ;; sucessor w has not yet been visited; recurse on it
                      (progn
                        (strong-connect w)
-                       (low-link! v (min (low-link? v) (low-link? w))))
-                     (if (on-stack? w)
+                       (set-low-link v (min (get-low-link v) (get-low-link w))))
+                     (if (get-on-stack w)
                          ;; sucessor w is in stack and hence in the current
                          ;; SCC
-                         (low-link! v (min (low-link? v) (index? w))))))
+                         (set-low-link v (min (get-low-link v) (get-index w))))))
 
                ;; if v is a root node, pop the stack and generate an SCC
-               (when (= (low-link? v) (index? v))
+               (when (= (get-low-link v) (get-index v))
                  (let ((w nil)
                        (connected-component nil))
                    (loop until (funcall test v w)
                         do
                         (setf w (pop stack))
-                        (on-stack! w nil)
+                        (set-on-stack w nil)
                         (push w connected-component))
                    ;; emit the SCC
                    (funcall visitor-fn connected-component)))))
       (dolist (v vertices)
-        (when (not (index? v))
+        (when (not (get-index v))
           (strong-connect v))))))
