@@ -6,6 +6,7 @@
            #:connected-components
            #:strongly-connected-components
            #:dijkstra
+           #:reconstruct-path
            #:degrees))
 
 

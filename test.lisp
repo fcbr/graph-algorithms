@@ -23,7 +23,12 @@
          (member '(:g :f) sccs :test #'equal)
          (member '(:a :b :e) sccs :test #'equal))))
 
-
-                               
-    
-    
+(defun test-dijkstra ()
+  (multiple-value-bind (dist prev)
+      (dijkstra :a '(:a :b :c :d :e :f :g :h)
+                (lambda (n)
+                  (getf *g* n))
+                :test #'eql)
+    ;; (maphash (lambda (k v) (format t "~a ~a ~%" k v)) dist)
+    (print (reconstruct-path prev :f))))
+  

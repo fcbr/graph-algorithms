@@ -63,7 +63,9 @@ gives the out degree of a vertex."
                 (ensure-gethash n out-degree 0))))))
 
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
-  "Dijkstra's shortest path algorithm between SOURCE and DESTINATION."
+  "Dijkstra's shortest path algorithm, simple implementation.  All
+reachable vertices from SOURCE are computed.  Returns DIST and PREV
+hash tables.  This implementation does not consider weighted edges."
   (let* ((dist (make-hash-table :test test))
         (prev (make-hash-table :test test))
         (Q (make-heap #'< :key (lambda (n) (gethash n dist)))))
@@ -88,6 +90,17 @@ gives the out degree of a vertex."
                  (set-dist v alt)
                  (set-prev v u))))))
     (values dist prev)))
+
+(defun reconstruct-path (prev target)
+  "Given the PREV hash table returned by DIJKSTRA, reconstruct the
+path from the original source vertex to TARGET."
+  (let ((S nil)
+        (u (gethash target prev)))
+    (loop while (gethash u prev)
+       do
+         (push u S)
+         (setf u (gethash u prev)))
+    S))
 
 (defun strongly-connected-components (vertices neighbors-fn visitor-fn
                                       &key (test #'equal))
