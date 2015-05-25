@@ -42,7 +42,7 @@ hash tables.  This implementation does not consider weighted edges.")
 path from the original source vertex to TARGET.")
 ```
 
-```List
+```Lisp
 (defun strongly-connected-components (vertices neighbors-fn visitor-fn
                                       &key (test #'equal))
   "Tarjan's strongly connected components algorithm. 
