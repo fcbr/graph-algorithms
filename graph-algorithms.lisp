@@ -62,15 +62,6 @@ gives the out degree of a vertex."
               (lambda (n)
                 (ensure-gethash n out-degree 0))))))
 
-(defun min-element (list key-fn)
-  (let ((min-value MOST-POSITIVE-FIXNUM)
-        (min-element nil))
-    (dolist (l list)
-      (when (< (funcall key-fn l) min-value)
-        (setf min-value (funcall key-fn l))
-        (setf min-element l)))
-    min-element))
-
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
   "Dijkstra's shortest path algorithm, simple implementation.  All
 reachable vertices from SOURCE are computed.  Returns DIST and PREV
@@ -79,9 +70,12 @@ weighted edges yet; (b) a heap needs to be used for perfomance to be
 acceptable."
   (let* ((dist (make-hash-table :test test))
          (prev (make-hash-table :test test))
-         (Q nil))
+         (nodes (make-hash-table :test test))
+         (Q (make-instance 'pairing-heap)))
     (flet ((set-dist (v n) (setf (gethash v dist) n))
            (get-dist (v) (gethash v dist))
+           (set-node (v n) (setf (gethash v nodes) n))
+           (get-node (v) (gethash v nodes))
            (set-prev (v n) (setf (gethash v prev) n))
            (get-prev (v) (gethash v prev)))
       (set-dist source 0)
@@ -90,17 +84,17 @@ acceptable."
         (when (not (funcall test v source))
           (set-dist v MOST-POSITIVE-FIXNUM)
           (set-prev v nil))
-        (push v Q))
-      (loop until (not Q)
+        (set-node v (insert Q (get-dist v) v)))
+      (loop until (empty-p Q)
          do
-           (let ((u (min-element Q (lambda (n) (gethash n dist))))
+           (let ((u (extract-min Q))
                  (alt 0))
-             (setf Q (remove u Q :test test))
              (dolist (v (funcall neighbors-fn u))
                (setf alt (+ (get-dist u) 1))
                (when (< alt (get-dist v))
                  (set-dist v alt)
-                 (set-prev v u))))))
+                 (set-prev v u)
+                 (decrease-key Q (get-node v) alt))))))
     (values dist prev)))
 
 (defun reconstruct-path (prev target)

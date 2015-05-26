@@ -5,7 +5,7 @@
   :author "Fabricio Chalub <f@cp300.org>"
   :license "MIT"
   :depends-on (#:cl-speedy-queue
-               #:pileup
+               #:minheap
                #:alexandria)
   :serial t
   :components ((:file "package")
