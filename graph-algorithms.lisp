@@ -62,13 +62,24 @@ gives the out degree of a vertex."
               (lambda (n)
                 (ensure-gethash n out-degree 0))))))
 
+(defun min-element (list key-fn)
+  (let ((min-value MOST-POSITIVE-FIXNUM)
+        (min-element nil))
+    (dolist (l list)
+      (when (< (funcall key-fn l) min-value)
+        (setf min-value (funcall key-fn l))
+        (setf min-element l)))
+    min-element))
+
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
   "Dijkstra's shortest path algorithm, simple implementation.  All
 reachable vertices from SOURCE are computed.  Returns DIST and PREV
-hash tables.  This implementation does not consider weighted edges."
+hash tables.  Notes: (a) this implementation does not consider
+weighted edges yet; (b) a heap needs to be used for perfomance to be
+acceptable."
   (let* ((dist (make-hash-table :test test))
-        (prev (make-hash-table :test test))
-        (Q (make-heap #'< :key (lambda (n) (gethash n dist)))))
+         (prev (make-hash-table :test test))
+         (Q nil))
     (flet ((set-dist (v n) (setf (gethash v dist) n))
            (get-dist (v) (gethash v dist))
            (set-prev (v n) (setf (gethash v prev) n))
@@ -79,11 +90,12 @@ hash tables.  This implementation does not consider weighted edges."
         (when (not (funcall test v source))
           (set-dist v MOST-POSITIVE-FIXNUM)
           (set-prev v nil))
-        (heap-insert v Q))
-      (loop until (heap-empty-p Q)
+        (push v Q))
+      (loop until (not Q)
          do
-           (let ((u (heap-pop Q))
+           (let ((u (min-element Q (lambda (n) (gethash n dist))))
                  (alt 0))
+             (setf Q (remove u Q :test test))
              (dolist (v (funcall neighbors-fn u))
                (setf alt (+ (get-dist u) 1))
                (when (< alt (get-dist v))
@@ -95,7 +107,7 @@ hash tables.  This implementation does not consider weighted edges."
   "Given the PREV hash table returned by DIJKSTRA, reconstruct the
 path from the original source vertex to TARGET."
   (let ((S nil)
-        (u (gethash target prev)))
+        (u target))
     (loop while (gethash u prev)
        do
          (push u S)

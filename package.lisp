@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:graph-algorithms
-  (:use #:cl #:cl-speedy-queue #:pileup #:alexandria)
+  (:use #:cl #:cl-speedy-queue #:alexandria)
   (:export #:bfs
            #:connected-components
            #:strongly-connected-components
