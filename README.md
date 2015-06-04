@@ -33,7 +33,7 @@ gives the out degree of a vertex.")
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
   "Dijkstra's shortest path algorithm, simple implementation.  All
 reachable vertices from SOURCE are computed.  Returns DIST and PREV
-hash tables.  This implementation does not consider weighted edges.")
+hash tables.  This implementation does not consider weighted edges yet.")
 ```
 
 ```Lisp
