@@ -96,7 +96,7 @@ function to be used when comparing vertex ids."
                  (set-dist v alt)
                  (set-prev v u)
                  (decrease-key Q (get-node v) alt))))))
-    (values dist prev)))
+    (values prev dist)))
 
 (defun reconstruct-path (prev target)
   "Given the PREV hash table returned by DIJKSTRA, reconstruct the
