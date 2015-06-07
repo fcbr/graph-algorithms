@@ -65,7 +65,10 @@ gives the out degree of a vertex."
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
   "Dijkstra's shortest path algorithm.  All reachable vertices from
 SOURCE are computed.  Returns DIST and PREV hash tables.  Note that
-this implementation does not consider weighted edges yet."
+this implementation does not consider weighted edges yet.  As in the
+other methods, NEIGHBORS-FN is a function that receives an vertex id
+and returns its neighbords as a list of ids and TEST is the predicate
+function to be used when comparing vertex ids."
   (let* ((dist (make-hash-table :test test))
          (prev (make-hash-table :test test))
          (nodes (make-hash-table :test test))
