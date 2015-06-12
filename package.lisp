@@ -5,6 +5,7 @@
   (:export #:bfs
            #:connected-components
            #:strongly-connected-components
+           #:maximal-cliques
            #:dijkstra
            #:reconstruct-path
            #:degrees))

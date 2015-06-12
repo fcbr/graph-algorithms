@@ -2,6 +2,24 @@
 
 (in-package #:graph-algorithms)
 
+(defun maximal-cliques (vertices neighbors-fn visitor-fn &key (test #'equal))
+  "Implementation of the Bron–Kerbosch algorithm for finding maximal
+  cliques in an undirected graph, without pivoting."
+  (bron-kerbosch nil vertices nil neighbors-fn visitor-fn test))
+
+(defun bron-kerbosch (R P X neighbors-fn visitor-fn test)
+  (when (and (emptyp P) (emptyp X))
+    (funcall visitor-fn R))
+  (dolist (v P)
+    (let ((Nv (funcall neighbors-fn v)))
+      (bron-kerbosch
+       (union R (list v) :test test)
+       (intersection P Nv :test test)
+       (intersection X Nv :test test)
+       neighbors-fn visitor-fn test)
+      (setf P (remove v P :test test))
+      (push v X))))
+
 (defun bfs (source neighbors-fn visitor-fn
             &key (test #'equal) (queue-depth 500000))
   "Performs a breadth-first-search on the graph.  SOURCE is the vertex

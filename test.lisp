@@ -1,6 +1,14 @@
 (in-package #:graph-algorithms)
 
-(defvar *g*
+(defvar *g2*
+  '(1 (2 5)
+    2 (1 3 5)
+    3 (4 2)
+    4 (3 5 6)
+    5 (1 2 4)
+    6 (4)))
+
+(defvar *g1*
   '(:a (:b)
     :b (:c :e :f)
     :c (:d :g)
@@ -14,7 +22,7 @@
   (let ((sccs nil))
     (strongly-connected-components '(:a :b :c :d :e :f :g :h)
                                    (lambda (n)
-                                     (getf *g* n))
+                                     (getf *g1* n))
                                    (lambda (scc)
                                      (push scc sccs)
                                      :test #'eql))
@@ -27,8 +35,14 @@
   (multiple-value-bind (dist prev)
       (dijkstra :a '(:a :b :c :d :e :f :g :h)
                 (lambda (n)
-                  (getf *g* n))
+                  (getf *g1* n))
                 :test #'eql)
     ;; (maphash (lambda (k v) (format t "~a ~a ~%" k v)) dist)
     (print (reconstruct-path prev :f))))
   
+(defun test-maximal-cliques ()
+  (maximal-cliques '(1 2 3 4 5 6)
+                   (lambda (n)
+                     (getf *g2* n))
+                   (lambda (c)
+                     (format t "[~a]~%" c)) :test #'eql))
