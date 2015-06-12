@@ -31,9 +31,12 @@ gives the out degree of a vertex.")
 
 ```Lisp
 (defun dijkstra (source vertices neighbors-fn &key (test #'equal))
-  "Dijkstra's shortest path algorithm, simple implementation.  All
-reachable vertices from SOURCE are computed.  Returns DIST and PREV
-hash tables.  This implementation does not consider weighted edges yet.")
+  "Dijkstra's shortest path algorithm.  All reachable vertices from
+SOURCE are computed.  Returns DIST and PREV hash tables.  As in the
+other methods, NEIGHBORS-FN is a function that receives a vertex and
+returns its neighbors as a list of vertices and TEST is the predicate
+function to be used when comparing vertices.  Note that this
+implementation does not consider weighted edges yet.")
 ```
 
 ```Lisp
@@ -50,3 +53,9 @@ VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
 return a list of immediate neighbor vertices of a given vertex.
 VISITOR-FN is called once for each SCC found.")
 ```
+
+```Lisp
+(defun maximal-cliques (vertices neighbors-fn visitor-fn &key (test #'equal))
+  "Implementation of the Bron–Kerbosch algorithm for finding maximal
+  cliques in an undirected graph, without pivoting.")
+  ```
