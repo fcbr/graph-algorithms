@@ -73,8 +73,9 @@ gives the out degree of a vertex."
       (dolist (v vertices)
         (let ((neighbors (funcall neighbors-fn v)))
           (+out-degree v (length neighbors))
-          (dolist (n neighbors)
-            (+in-degree n 1))))
+	  (when neighbors
+	    (dolist (n neighbors)
+	      (+in-degree n 1)))))
       (values (lambda (n)
                 (ensure-gethash n in-degree 0))
               (lambda (n)
