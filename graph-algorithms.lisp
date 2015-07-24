@@ -185,3 +185,17 @@ VISITOR-FN is called once for each SCC found."
       (dolist (v vertices)
         (when (not (get-index v))
           (strong-connect v))))))
+
+(defun transitive-closure (vertices relation-fn &key (test #'equal))
+  "Gets the transitive closure of RELATION-FN over VERTICES."
+  (let ((closure vertices)
+        (tmp nil))
+    (loop 
+       (setf tmp (remove-duplicates 
+                  (append closure
+                          (flatten (mapcar relation-fn closure)))
+                  :test #'equal))
+       (when (= (length tmp) (length closure))
+	 (return))
+       (setf closure tmp))
+    (remove-duplicates closure :test test)))

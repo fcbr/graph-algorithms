@@ -8,6 +8,7 @@
            #:maximal-cliques
            #:dijkstra
            #:reconstruct-path
+           #:transitive-closure
            #:degrees))
 
 
