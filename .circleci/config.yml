@@ -1,0 +1,23 @@
+version: 2
+
+jobs:
+  sbcl:
+    docker:
+      - image: circleci/buildpack-deps:buster-curl
+    environment:
+      LISP: sbcl-bin
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment Variables
+          command: |
+            echo "export PATH=$HOME/.roswell/bin:$PATH" >> $BASH_ENV
+      - run: curl -L https://raw.githubusercontent.com/roswell/roswell/release/scripts/install-for-ci.sh | bash
+      - run: ros install ci-utils
+      - run: run-fiveam -l graph-algorithms/tests graph-algorithms/tests:all-tests
+
+workflows:
+  version: 2
+  run_tests:
+    jobs:
+      - sbcl

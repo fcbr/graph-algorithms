@@ -2,5 +2,4 @@
 
 (defpackage #:graph-algorithms/tests
   (:use #:cl #:fiveam #:graph-algorithms)
-  (:export #:run!
-           #:all-tests))
+  (:export #:test-graph-algorithms #:run! #:all-tests))
