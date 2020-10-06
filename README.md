@@ -1,3 +1,6 @@
+
+[![CircleCI](https://circleci.com/gh/fcbr/graph-algorithms.svg?style=shield)](https://circleci.com/gh/fcbr/graph-algorithms)
+
 # Installation
 
 This package uses ASD definition files. The easiest way to use this is via [Quicklisp](https://www.quicklisp.org/).
