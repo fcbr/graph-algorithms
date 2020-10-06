@@ -29,14 +29,7 @@ This package uses [FiveAM](https://github.com/lispci/fiveam/) for unit tests.
 
 # Documentation
 
-Graph algorithms in Common Lisp:
-
-- Breadth first search
-- Connected components
-- Shortest paths
-- Strongly connected components
-- Maximal cliques
-- Degrees of a vertex
+## Breadth first search
 
 ```
 (bfs source neighbors-fn visitor-fn)
@@ -47,6 +40,8 @@ used as the start of the search.  `NEIGHBORS-FN` should return a list of
 immediate neighbor vertices of a given vertex.  `VISITOR-FN` is called
 on each new vertex found by the search.
 
+## Connected components
+
 ```
 (connected-components vertices neighbors-fn visitor-fn)
 ```
@@ -56,14 +51,7 @@ return a list of immediate neighbor vertices of a given vertex.
 `VISITOR-FN` is called once for each representative vertex of found
 components.
 
-```
-(degrees vertices neighbors-fn)
-```
-
-Given a list of `VERTICES` and a `NEIGHBOR-FN` function, returns two
-functions: one that gives the in degree of a vertex and another that
-gives the out degree of a vertex.
-
+## Shortest paths
 
 ```
 (dijkstra source vertices neighbors-fn)
@@ -82,6 +70,7 @@ implementation does not consider weighted edges yet.
 Given the PREV hash table returned by DIJKSTRA, reconstruct the
 path from the original source vertex to TARGET.
 
+## Strongly connected components
 
 ```
 (strongly-connected-components vertices neighbors-fn visitor-fn)
@@ -92,9 +81,43 @@ the list of vertices of the graph. `NEIGHBORS-FN` should return
 a list of immediate neighbor vertices of a given vertex. `VISITOR-FN`
 is called once for each SCC found.
 
+## Maximal cliques
+
 ```
 (maximal-cliques vertices neighbors-fn visitor-fn)
 ```
 
 Implementation of the Bron–Kerbosch algorithm for finding maximal
 cliques in an undirected graph, without pivoting.
+
+# Sample usage
+
+Your graph can be in any format or data structure as you want, as long as you provide a function to access the neighbors of a vertex.  For convenience sake, this sample uses [property lists](http://clhs.lisp.se/Body/26_glo_p.htm#property_list) as the data structure, where each vertex has an associated list of neighbours. This way, we can use Common Lisp's `GETF` accessor as the neighbor function.
+
+```lisp
+(defun sample-bfs ()
+  (let ((graph
+          '(:a (:b :c)
+            :b (:d)
+            :c (:f))))
+    (bfs :a
+         (lambda (n) (getf graph n))
+         (lambda (n) (print n)))))
+```
+
+Sample call with output for the following graph:
+
+![graph](docs/bfs.png)
+
+```
+* (sample-bfs)
+
+:A
+:B
+:C
+:D
+:F
+```
+
+
+
