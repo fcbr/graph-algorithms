@@ -1,4 +1,4 @@
-(in-package #:graph-algorithms)
+(in-package #:graph-algorithms/tests)
 
 (defvar *g2*
   '(1 (2 5)
@@ -18,8 +18,13 @@
     :g (:f)
     :h (:g :d)))
 
-(defun test-strongly-connected-components ()
-  (let ((sccs nil))
+(defun neighbor (graph v)
+  "Handy method to return all neighbors of vertex V from graph GRAPH,
+assuming that the graph is a property-list (p-list)."
+  (getf graph v))
+
+(test strongly-connected-components
+  (let ((components nil))
     (strongly-connected-components '(:a :b :c :d :e :f :g :h)
                                    (lambda (n)
                                      (getf *g1* n))
