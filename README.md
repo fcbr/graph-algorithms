@@ -9,7 +9,6 @@ $ cd ~/quicklisp/local-projects/
 $ git clone https://github.com/fcbr/graph-algorithms.git
 [...]
 $ sbcl
-~/quicklisp/local-projects/graph-algorithms $ sbcl
 This is SBCL 2.0.9, an implementation of ANSI Common Lisp.
 More information about SBCL is available at <http://www.sbcl.org/>.
 
