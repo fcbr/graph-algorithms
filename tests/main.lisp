@@ -13,6 +13,16 @@
     :b (:d)
     :c (:f :a)))
 
+(defvar *complex-graph*
+  '(:a (:b)
+    :b (:c :e :f)
+    :c (:d :g)
+    :d (:c :g :h)
+    :e (:a :f)
+    :f (:g)
+    :g (:f)
+    :h (:g :d)))
+
 (defun simple-bfs ()
   (let ((path nil))
     (bfs :a (lambda (n) (getf *simple-graph* n))
@@ -24,6 +34,14 @@
       (degrees '(:a :b :c :d :f) (lambda (n) (getf *simple-graph* n)))
     (list (funcall in-fn v) (funcall out-fn v))))
 
+(defun complex-dijkstra (from to)
+  (multiple-value-bind (prev dist)
+      (dijkstra from '(:a :b :c :d :e :f :g :h)
+                (lambda (n) (getf *complex-graph* n)))
+    (list
+     (gethash to dist)
+     (reconstruct-path prev to))))
+
 (test bfs
       (is (equal '(:a :b :c :d :f) (simple-bfs))))
 
@@ -33,3 +51,8 @@
       (is (equal '(1 2) (simple-degrees :c)))
       (is (equal '(1 0) (simple-degrees :d)))
       (is (equal '(1 0) (simple-degrees :f))))
+
+(test dijkstra
+      (is (equal '(2 (:b :f)) (complex-dijkstra :a :f)))
+      (is (equal '(1 (:f)) (complex-dijkstra :b :f)))
+      (is (equal '(4 (:b :c :d :h)) (complex-dijkstra :a :h))))
