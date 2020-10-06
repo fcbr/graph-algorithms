@@ -27,6 +27,26 @@ See the unit tests for sample usage of each of the defined methods.
 
 This package uses [FiveAM](https://github.com/lispci/fiveam/) for unit tests.
 
+You can use the package `graph-algorithms/tests` for unit tests. Sample usage:
+
+```
+$ sbcl
+* (require :graph-algorithms/tests)
+* (graph-algorithms/tests::test-graph-algorithms)
+
+Running test suite ALL-TESTS
+ Running test BFS .
+ Running test DEGREES .....
+ Running test DIJKSTRA ...
+ Running test MAXIMAL-CLIQUES .
+ Running test STRONGLY-CONNECTED-COMPONENTS .
+ Running test CONNECTED-COMPONENTS .
+ Did 12 checks.
+    Pass: 12 (100%)
+    Skip: 0 ( 0%)
+    Fail: 0 ( 0%)
+```
+
 # Documentation
 
 ## Degrees of vertices
