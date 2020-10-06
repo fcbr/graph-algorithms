@@ -22,3 +22,6 @@
                 :serial t
                 :components ((:file "package")
                              (:file "main")))))
+
+
+  ;;; :perform (test-op (o s) (uiop:symbol-call :fiveam :run! 'graph-algorithms/tests:all-tests)))
