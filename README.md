@@ -29,6 +29,16 @@ This package uses [FiveAM](https://github.com/lispci/fiveam/) for unit tests.
 
 # Documentation
 
+## Degrees of vertices
+
+```
+(degrees vertices neighbors-fn)
+```
+
+Given a list of `VERTICES` and a `NEIGHBOR-FN` function, returns two
+functions: one that gives the in degree of a vertex and another that
+gives the out degree of a vertex.
+
 ## Breadth first search
 
 ```
