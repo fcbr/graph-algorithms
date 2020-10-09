@@ -42,13 +42,13 @@ CL-SPEEDY-QUEUE."
   (let ((q (make-queue queue-depth))
         (discovered (make-hash-table :test test)))
     (enqueue source q)
-    (setf (gethash source discovered) 1)
+    (setf (gethash source discovered) t)
     (loop until (queue-empty-p q)
        do (let ((p (dequeue q)))
             (funcall visitor-fn p)
             (dolist (v (funcall neighbors-fn p))
               (unless (gethash v discovered)
-                (setf (gethash v discovered) 1)
+                (setf (gethash v discovered) t)
                 (enqueue v q)))))))
 
 (defun connected-components (vertices neighbors-fn visitor-fn
@@ -60,11 +60,11 @@ components."
   (let ((discovered (make-hash-table :test test)))
     (dolist (id vertices)
       (unless (gethash id discovered)
-        (setf (gethash id discovered) 1)
+        (setf (gethash id discovered) t)
         (funcall visitor-fn id)
         (bfs id neighbors-fn
              (lambda (n)
-               (setf (gethash n discovered) 1)))))))
+               (setf (gethash n discovered) t)))))))
 
 (defun degrees (vertices neighbors-fn &key (test #'equal))
   "Given a list of VERTICES and a NEIGHBOR-FN function, returns two
