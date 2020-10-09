@@ -3,7 +3,7 @@
 
 # Installation
 
-This package uses ASD definition files. The easiest way to use this is via [Quicklisp](https://www.quicklisp.org/).
+This package uses [ASDF](https://common-lisp.net/project/asdf/). The easiest way to use this is via [Quicklisp](https://www.quicklisp.org/).
 
 To use, clone this repository and link it from your local `~/quicklisp/local-projects/`, for example:
 
@@ -12,15 +12,13 @@ $ cd ~/quicklisp/local-projects/
 $ git clone https://github.com/fcbr/graph-algorithms.git
 [...]
 $ sbcl
-This is SBCL 2.0.9, an implementation of ANSI Common Lisp.
-More information about SBCL is available at <http://www.sbcl.org/>.
+* (ql:quickload "graph-algorithms")
+To load "graph-algorithms":
+  Load 1 ASDF system:
+    graph-algorithms
+; Loading "graph-algorithms"
 
-SBCL is free software, provided as is, with absolutely no warranty.
-It is mostly in the public domain; some portions are provided under
-BSD-style licenses.  See the CREDITS and COPYING files in the
-distribution for more information.
-* (require :graph-algorithms)
-NIL
+("graph-algorithms")
 *
 ```
 
