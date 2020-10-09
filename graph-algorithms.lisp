@@ -2,12 +2,12 @@
 
 (in-package #:graph-algorithms)
 
-(defun maximal-cliques (vertices neighbors-fn visitor-fn &key (test #'equal))
+(defun maximal-cliques (vertices neighbors-fn visitor-fn)
   "Implementation of the Bron–Kerbosch algorithm for finding maximal
   cliques in an undirected graph, without pivoting."
-  (bron-kerbosch nil vertices nil neighbors-fn visitor-fn test))
+  (bron-kerbosch nil vertices nil neighbors-fn visitor-fn))
 
-(defun bron-kerbosch (R P X neighbors-fn visitor-fn test)
+(defun bron-kerbosch (R P X neighbors-fn visitor-fn)
   "The basic form of the Bron–Kerbosch algorithm is a recursive
 backtracking algorithm that searches for all maximal cliques in a
 given graph G. More generally, given three disjoint sets of vertices
@@ -24,23 +24,22 @@ algorithm outputs R."
   (dolist (v P)
     (let ((nv (funcall neighbors-fn v)))
       (bron-kerbosch
-       (union R (list v) :test test)
-       (intersection P nv :test test)
-       (intersection X nv :test test)
-       neighbors-fn visitor-fn test)
-      (removef P v :test test)
+       (union R (list v))
+       (intersection P nv)
+       (intersection X nv)
+       neighbors-fn visitor-fn)
+      (removef P v)
       (push v X))))
 
 (defun bfs (source neighbors-fn visitor-fn
-            &key (test #'equal) (queue-depth 500000))
+            &key (queue-depth 500000))
   "Performs a breadth-first-search on the graph.  SOURCE is the vertex
 used as the start of the search.  NEIGHBORS-FN should return a list of
 immediate neighbor vertices of a given vertex.  VISITOR-FN is called
-on each new vertex found by the search.  TEST is used to compare
-vertices and QUEUE-DEPH is the maximum queue depth used by
-CL-SPEEDY-QUEUE."
+on each new vertex found by the search. QUEUE-DEPH is the maximum
+queue depth used by CL-SPEEDY-QUEUE."
   (let ((q (make-queue queue-depth))
-        (discovered (make-hash-table :test test)))
+        (discovered (make-hash-table)))
     (enqueue source q)
     (setf (gethash source discovered) t)
     (loop until (queue-empty-p q)
@@ -51,13 +50,12 @@ CL-SPEEDY-QUEUE."
                 (setf (gethash v discovered) t)
                 (enqueue v q)))))))
 
-(defun connected-components (vertices neighbors-fn visitor-fn
-                             &key (test #'equal))
+(defun connected-components (vertices neighbors-fn visitor-fn)
   "VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
 return a list of immediate neighbor vertices of a given vertex.
 VISITOR-FN is called once for each representative vertex of found
 components."
-  (let ((discovered (make-hash-table :test test)))
+  (let ((discovered (make-hash-table)))
     (dolist (id vertices)
       (unless (gethash id discovered)
         (setf (gethash id discovered) t)
@@ -66,12 +64,12 @@ components."
              (lambda (n)
                (setf (gethash n discovered) t)))))))
 
-(defun degrees (vertices neighbors-fn &key (test #'equal))
+(defun degrees (vertices neighbors-fn)
   "Given a list of VERTICES and a NEIGHBOR-FN function, returns two
 functions: one that gives the in degree of a vertex and another that
 gives the out degree of a vertex."
-  (let ((in-degree (make-hash-table :test test))
-        (out-degree (make-hash-table :test test)))
+  (let ((in-degree (make-hash-table))
+        (out-degree (make-hash-table)))
     (flet ((+in-degree (v n)
              (setf (gethash v in-degree)
                    (+ n (gethash v in-degree))))
@@ -92,16 +90,15 @@ gives the out degree of a vertex."
               (lambda (n)
                 (ensure-gethash n out-degree 0))))))
 
-(defun dijkstra (source vertices neighbors-fn &key (test #'equal))
+(defun dijkstra (source vertices neighbors-fn)
   "Dijkstra's shortest path algorithm.  All reachable vertices from
 SOURCE are computed.  Returns DIST and PREV hash tables.  As in the
 other methods, NEIGHBORS-FN is a function that receives a vertex and
-returns its neighbors as a list of vertices and TEST is the predicate
-function to be used when comparing vertices.  Note that this
+returns its neighbors as a list of vertices.  Note that this
 implementation does not consider weighted edges yet."
-  (let* ((dist (make-hash-table :test test))
-         (prev (make-hash-table :test test))
-         (nodes (make-hash-table :test test))
+  (let* ((dist (make-hash-table))
+         (prev (make-hash-table))
+         (nodes (make-hash-table))
          (Q (make-instance 'pairing-heap)))
     (flet ((set-dist (v n) (setf (gethash v dist) n))
            (get-dist (v) (gethash v dist))
@@ -112,7 +109,7 @@ implementation does not consider weighted edges yet."
       (set-dist source 0)
       (set-prev source nil)
       (dolist (v vertices)
-        (when (not (funcall test v source))
+        (when (not (eql v source))
           (set-dist v MOST-POSITIVE-FIXNUM)
           (set-prev v nil))
         (set-node v (insert Q (get-dist v) v)))
@@ -139,8 +136,7 @@ path from the original source vertex to TARGET."
          (setf u (gethash u prev)))
     S))
 
-(defun strongly-connected-components (vertices neighbors-fn visitor-fn
-                                      &key (test #'equal))
+(defun strongly-connected-components (vertices neighbors-fn visitor-fn)
   "Tarjan's strongly connected components algorithm, published by
 Robert Tarjan in 1972,[3] performs a single pass of depth first
 search. It maintains a stack of vertices that have been explored by
@@ -155,9 +151,9 @@ return a list of immediate neighbor vertices of a given vertex.
 VISITOR-FN is called once for each SCC found."
   (let ((index 0)
         (stack nil)
-        (on-stack (make-hash-table :test test))
-        (indices (make-hash-table :test test))
-        (low-links (make-hash-table :test test)))
+        (on-stack (make-hash-table))
+        (indices (make-hash-table))
+        (low-links (make-hash-table)))
     (labels ((set-low-link (v n) (setf (gethash v low-links) n))
              (get-low-link (v) (gethash v low-links))
              (set-index (v n) (setf (gethash v indices) n))
@@ -186,7 +182,7 @@ VISITOR-FN is called once for each SCC found."
                (when (= (get-low-link v) (get-index v))
                  (let ((w nil)
                        (connected-component nil))
-                   (loop until (funcall test v w)
+                   (loop until (eql v w)
                         do
                         (setf w (pop stack))
                         (set-on-stack w nil)
@@ -197,16 +193,15 @@ VISITOR-FN is called once for each SCC found."
         (when (not (get-index v))
           (strong-connect v))))))
 
-(defun transitive-closure (vertices relation-fn &key (test #'equal))
+(defun transitive-closure (vertices relation-fn)
   "Gets the transitive closure of RELATION-FN over VERTICES."
   (let ((closure vertices)
         (tmp nil))
     (loop 
        (setf tmp (remove-duplicates 
                   (append closure
-                          (flatten (mapcar relation-fn closure)))
-                  :test #'equal))
+                          (flatten (mapcar relation-fn closure)))))
        (when (= (length tmp) (length closure))
 	 (return))
        (setf closure tmp))
-    (remove-duplicates closure :test test)))
+    (remove-duplicates closure)))
