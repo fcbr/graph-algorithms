@@ -65,7 +65,7 @@ gives the out degree of a vertex.
 ## Breadth first search
 
 ```
-(bfs source neighbors-fn visitor-fn)
+(breadth-first-search source neighbors-fn visitor-fn)
 ```
 
 Performs a breadth-first-search on the graph.  `SOURCE` is the vertex
@@ -87,7 +87,7 @@ components.
 ## Shortest paths
 
 ```
-(dijkstra source vertices neighbors-fn)
+(shortest-paths source vertices neighbors-fn)
 ```
 
 Dijkstra's shortest patha algorithm.  All reachable vertices from
