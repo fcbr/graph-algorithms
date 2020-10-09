@@ -9,8 +9,11 @@
                #:alexandria)
   :serial t
   :components ((:file "package")
-               (:file "graph-algorithms")))
-
+               (:file "maximal-cliques")
+               (:file "breadth-first-search")
+               (:file "connected-components")
+               (:file "degrees")
+               (:file "shortest-paths")))
 
 (asdf:defsystem #:graph-algorithms/tests
   :description "Unit tests for :graph-algorithms."

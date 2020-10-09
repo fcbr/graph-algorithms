@@ -2,10 +2,10 @@
 
 (defpackage #:graph-algorithms
   (:use #:cl #:cl-speedy-queue #:pairing-heap #:alexandria)
-  (:export #:bfs
+  (:export #:breadth-first-search
            #:connected-components
            #:strongly-connected-components
            #:maximal-cliques
-           #:dijkstra
+           #:shortest-paths
            #:reconstruct-path
            #:degrees))

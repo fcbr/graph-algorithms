@@ -33,7 +33,7 @@
 
 (defun simple-bfs ()
   (let ((path nil))
-    (bfs :a (lambda (n) (getf *simple-graph* n))
+    (breadth-first-search :a (lambda (n) (getf *simple-graph* n))
          (lambda (n) (push n path)))
     (reverse path)))
 
@@ -44,7 +44,7 @@
 
 (defun complex-dijkstra (from to)
   (multiple-value-bind (prev dist)
-      (dijkstra from '(:a :b :c :d :e :f :g :h)
+      (shortest-paths from '(:a :b :c :d :e :f :g :h)
                 (lambda (n) (getf *complex-graph* n)))
     (list
      (gethash to dist)
