@@ -137,8 +137,7 @@ path from the original source vertex to TARGET."
     S))
 
 (defun strongly-connected-components (vertices neighbors-fn visitor-fn)
-  "Tarjan's strongly connected components algorithm, published by
-Robert Tarjan in 1972,[3] performs a single pass of depth first
+  "Tarjan's algorithm. Performs a single pass of depth first
 search. It maintains a stack of vertices that have been explored by
 the search but not yet assigned to a component, and calculates low
 numbers of each vertex (an index number of the highest ancestor
@@ -148,7 +147,10 @@ into a new component.
 
 VERTICES is the list of vertices of the graph. NEIGHBORS-FN should
 return a list of immediate neighbor vertices of a given vertex.
-VISITOR-FN is called once for each SCC found."
+VISITOR-FN is called once for each SCC found.
+
+This implementation is a naive translation of the pseudocode in
+Wikipedia, not really optimized for any particular workflow."
   (let ((index 0)
         (stack nil)
         (on-stack (make-hash-table))
@@ -166,6 +168,7 @@ VISITOR-FN is called once for each SCC found."
                (incf index)
                (push v stack)
                (set-on-stack v t)
+
                ;; consider sucessors of v
                (dolist (w (funcall neighbors-fn v))
                  (if (not (get-index w))
@@ -173,12 +176,13 @@ VISITOR-FN is called once for each SCC found."
                      (progn
                        (strong-connect w)
                        (set-low-link v (min (get-low-link v) (get-low-link w))))
+
                      (if (get-on-stack w)
                          ;; sucessor w is in stack and hence in the current
                          ;; SCC
                          (set-low-link v (min (get-low-link v) (get-index w))))))
 
-               ;; if v is a root node, pop the stack and generate an SCC
+               ;; if v is a root node, pop the stack and generate a SCC
                (when (= (get-low-link v) (get-index v))
                  (let ((w nil)
                        (connected-component nil))
@@ -187,6 +191,7 @@ VISITOR-FN is called once for each SCC found."
                         (setf w (pop stack))
                         (set-on-stack w nil)
                         (push w connected-component))
+
                    ;; emit the SCC
                    (funcall visitor-fn connected-component)))))
       (dolist (v vertices)
