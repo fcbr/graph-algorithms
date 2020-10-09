@@ -8,16 +8,27 @@
   (bron-kerbosch nil vertices nil neighbors-fn visitor-fn test))
 
 (defun bron-kerbosch (R P X neighbors-fn visitor-fn test)
+  "The basic form of the Bron–Kerbosch algorithm is a recursive
+backtracking algorithm that searches for all maximal cliques in a
+given graph G. More generally, given three disjoint sets of vertices
+R, P, and X, it finds the maximal cliques that include all of the
+vertices in R, some of the vertices in P, and none of the vertices in
+X. In each call to the algorithm, P and X are disjoint sets whose
+union consists of those vertices that form cliques when added to R. In
+other words, P ∪ X is the set of vertices which are joined to every
+element of R. When P and X are both empty there are no further
+elements that can be added to R, so R is a maximal clique and the
+algorithm outputs R."
   (when (and (emptyp P) (emptyp X))
     (funcall visitor-fn R))
   (dolist (v P)
-    (let ((Nv (funcall neighbors-fn v)))
+    (let ((nv (funcall neighbors-fn v)))
       (bron-kerbosch
        (union R (list v) :test test)
-       (intersection P Nv :test test)
-       (intersection X Nv :test test)
+       (intersection P nv :test test)
+       (intersection X nv :test test)
        neighbors-fn visitor-fn test)
-      (setf P (remove v P :test test))
+      (removef P v :test test)
       (push v X))))
 
 (defun bfs (source neighbors-fn visitor-fn
